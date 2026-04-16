@@ -9,7 +9,7 @@ function App() {
         <p>
           Name: Isam Legaspi<br />
           Email: isjlegaspi8@gmail.com<br />
-          Other Personal Info: BSIT Student at NU Manila
+          Other Personal Info: BSIT Student at NU Manila, 3rd Year, passionate about web development and technology.
         </p>
       </header>
     </div>
