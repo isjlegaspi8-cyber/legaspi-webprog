@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 // Updated: Import the logo from your styles directory
-import Logo from '../assets/styles/Jaxon Cross.jpg';
+import Logo from '../assets/Jaxon Cross.png';
 
 const NavBar = () => {
   // Updated Link Styles: Sharp skew and metallic states
