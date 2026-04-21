@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import NavBar from './NavBar';
+import Footer from './Footer';
 
 const Layout = () => {
   return (
@@ -26,20 +27,8 @@ const Layout = () => {
         <Outlet />
       </main>
 
-      {/* NEW: Footer Bar for that Pro-League feel */}
-      <footer className="relative z-10 border-t-4 border-zinc-900 bg-zinc-950 p-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-4">
-            <div className="h-8 w-1 bg-yellow-500"></div>
-            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-zinc-500 italic">
-              Property of Team Pendragon // X-Tower Floor 100
-            </p>
-          </div>
-          <p className="text-[10px] font-bold text-zinc-600 uppercase italic">
-            Apex Status: Verified
-          </p>
-        </div>
-      </footer>
+      {/* Footer Component */}
+      <Footer />
     </div>
   );
 };

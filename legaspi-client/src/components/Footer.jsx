@@ -1,6 +1,12 @@
 import React from 'react';
 
 const Footer = () => {
+  const links = [
+    { label: 'Home', href: '/' },
+    { label: 'Articles', href: '/articles' },
+    { label: 'About', href: '/about' },
+  ];
+
   return (
     <footer className="mt-auto border-t-2 border-zinc-900 bg-zinc-950 p-8 text-white">
       <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
@@ -12,6 +18,17 @@ const Footer = () => {
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500 italic">
             Apex Status // Floor 100 Verified
           </p>
+        </div>
+        <div className="flex gap-6">
+          {links.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-[10px] font-bold uppercase text-zinc-400 hover:text-yellow-500 transition-colors"
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
         <p className="text-[10px] font-black uppercase text-zinc-400">
           © {new Date().getFullYear()} All Rights Reserved // System Authority
