@@ -14,6 +14,15 @@ const articles = [
       "Tuning your gear requires an understanding of friction control and velocity limits.",
       "The Pendragon way involves rigorous testing of every component."
     ]
+  },
+  {
+    name: "beyblades-team-pendragon",
+    title: "Beyblades of Team Pendragon",
+    content: [
+      "Cobalt Drake: A powerful Beyblade known for its aggressive attack and high spin velocity, perfect for overwhelming opponents in Beyblade X battles.",
+      "Weiss Tiger: Features a balanced design with exceptional stamina, allowing it to outlast rivals and strike at the perfect moment.",
+      "Dransword: Equipped with sharp edges for defense and counterattacks, making it a versatile choice in competitive matches."
+    ]
   }
 ];
 

@@ -7,6 +7,9 @@ import CobaltDrakeImg from '../assets/CobaltDrake.png';
 import WeissTigerImg from '../assets/WeissTiger.png';
 import DranSwordImg from '../assets/DranSword.png';
 
+// Beyblade images array
+const beybladeImages = [CobaltDrakeImg, WeissTigerImg, DranSwordImg];
+
 // Move reports outside to prevent memory leaks and lagging
 const reports = [
   { id: "LOG-001", bey: "Cobalt Drake", img: CobaltDrakeImg, title: "Bit Friction & Velocity Logs", author: "Chrome Ryugu", desc: "Technical friction analysis at maximum output." },
@@ -26,9 +29,24 @@ const ArticlePage = () => {
           <h1 className="text-4xl md:text-7xl font-black italic uppercase tracking-tighter leading-none mb-4">{article.title}</h1>
         </section>
         <div className="max-w-4xl mx-auto space-y-8 py-10">
-          {article.content.map((p, i) => (
-            <p key={i} className="text-lg text-zinc-300 font-bold italic leading-relaxed border-l-4 border-zinc-900 pl-8">{p}</p>
-          ))}
+          {article.name === 'beyblades-team-pendragon' ? (
+            article.content.map((p, i) => (
+              <div key={i} className="flex flex-col md:flex-row items-center gap-8 bg-zinc-900/50 p-8 rounded-2xl border border-zinc-800">
+                <div className="flex-shrink-0">
+                  <img 
+                    src={beybladeImages[i]} 
+                    alt={p.split(':')[0]} 
+                    className="w-32 h-32 object-contain" 
+                  />
+                </div>
+                <p className="text-lg text-zinc-300 font-bold italic leading-relaxed">{p}</p>
+              </div>
+            ))
+          ) : (
+            article.content.map((p, i) => (
+              <p key={i} className="text-lg text-zinc-300 font-bold italic leading-relaxed border-l-4 border-zinc-900 pl-8">{p}</p>
+            ))
+          )}
         </div>
       </div>
     );
