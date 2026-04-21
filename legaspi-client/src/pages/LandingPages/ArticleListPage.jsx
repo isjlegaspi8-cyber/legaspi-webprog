@@ -1,7 +1,7 @@
 import React from 'react';
-import Button from '../components/Button';
-import ArticleList from '../components/ArticleList';
-import articles from '../assets/styles/article-content';
+import Button from '../../components/Button';
+import ArticleList from '../../components/ArticleList';
+import articles from '../../assets/styles/article-content';
 
 const ArticleListPage = () => {
   return (

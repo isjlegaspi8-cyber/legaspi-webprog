@@ -1,9 +1,9 @@
-import Button from '../components/Button';
+import Button from '../../components/Button';
 
 // Exact image imports maintained
-import ShiguruImg from '../assets/Shiguru Nanairo.png';
-import ChromeImg from '../assets/Chrome Ryugu.png';
-import JaxonImg from '../assets/Jaxon Cross x.png';
+import ShiguruImg from '../../assets/Shiguru Nanairo.png';
+import ChromeImg from '../../assets/Chrome Ryugu.png';
+import JaxonImg from '../../assets/Jaxon Cross x.png';
 
 const AboutPage = () => {
   return (
@@ -110,11 +110,6 @@ const AboutPage = () => {
           </div>
         </div>
       </div>
-      
-      <footer className="w-full flex items-center justify-between border-t-2 border-zinc-900 p-10 mt-10">
-          <p className="text-zinc-600 font-bold uppercase text-[10px] tracking-[0.3em] italic">Property of Team Pendragon // Level 100 Verified</p>
-          <div className="h-1 w-32 bg-yellow-500/20"></div>
-      </footer>
     </div>
   );
 };

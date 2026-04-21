@@ -1,11 +1,11 @@
 import { useParams } from 'react-router-dom';
-import Button from '../components/Button';
-import articles from '../assets/styles/article-content'; 
+import Button from '../../components/Button';
+import articles from '../../assets/styles/article-content'; 
 
 // Import your PNG assets
-import CobaltDrakeImg from '../assets/CobaltDrake.png';
-import WeissTigerImg from '../assets/WeissTiger.png';
-import DranSwordImg from '../assets/DranSword.png';
+import CobaltDrakeImg from '../../assets/CobaltDrake.png';
+import WeissTigerImg from '../../assets/WeissTiger.png';
+import DranSwordImg from '../../assets/DranSword.png';
 
 // Beyblade images array
 const beybladeImages = [CobaltDrakeImg, WeissTigerImg, DranSwordImg];

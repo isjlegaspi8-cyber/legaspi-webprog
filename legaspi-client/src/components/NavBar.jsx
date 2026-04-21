@@ -52,6 +52,12 @@ const NavBar = () => {
           <NavLink to="/about" className={linkStyle}>
             <span className="relative z-10">Roster</span>
           </NavLink>
+          <NavLink to="/signin" className={linkStyle}>
+            <span className="relative z-10">Sign In</span>
+          </NavLink>
+          <NavLink to="/signup" className={linkStyle}>
+            <span className="relative z-10">Portal</span>
+          </NavLink>
           
           <div className="hidden lg:flex flex-col items-end ml-8 pl-8 border-l-2 border-zinc-800">
             <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">System_Lat: 0.1ms</span>
