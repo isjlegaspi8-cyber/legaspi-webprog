@@ -19,21 +19,18 @@ const routes = [
       { path: 'about', element: <AboutPage /> },
       { path: 'articles', element: <ArticleListPage /> },
       { path: 'articles/:name', element: <ArticlePage /> },
-      { path: 'signup', element: <SignUpPage /> },
-      { path: 'signin', element: <SignInPage /> },
-      { path: '*', element: <NotFoundPage /> },
     ],
   },
+  { path: 'signup', element: <SignUpPage /> },
+  { path: 'signin', element: <SignInPage /> },
+  { path: '*', element: <NotFoundPage /> },
 ];
 
 const router = createBrowserRouter(routes);
 
 function App() {
-  return (
-    <>
-      <RouterProvider router={router} />
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
+
