@@ -7,20 +7,11 @@ const userSchema = new mongoose.Schema({
   gender: { type: String, required: true },
   contactNumber: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  role: {
-    type: String,
-    enum: ['Admin', 'Editor', 'Viewer', 'Support', 'Intern'],
-    default: 'Viewer',
-  },
-  type: {
-    type: String,
-    enum: ['Active', 'Inactive'],
-    default: 'Active',
-  },
+  type: { type: String, enum: ['admin', 'editor', 'viewer'], default: 'editor' },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  address: { type: String },
+  address: { type: String, required: true },
   isActive: { type: Boolean, default: true },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);
