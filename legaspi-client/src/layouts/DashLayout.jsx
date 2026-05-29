@@ -21,6 +21,7 @@ import ListItemText from '@mui/material/ListItemText';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import Button from '@mui/material/Button';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -38,6 +39,12 @@ const dashboardNavItems = [
     title: 'Reports',
     to: '/dashboard/reports',
     icon: AssessmentIcon,
+  },
+  {
+    label: 'Articles',
+    title: 'Articles',
+    to: '/dashboard/articles',
+    icon: MenuBookIcon,
   },
   {
     label: 'Users',
@@ -182,10 +189,19 @@ const DashLayout = () => {
   const location = useLocation();
   const pageTitle = getPageTitle(location.pathname);
   const navigate = useNavigate();
+  const currentUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+
+  const visibleNavItems = currentUser?.role === 'Editor'
+    ? dashboardNavItems.filter((item) => item.to !== '/dashboard/users')
+    : dashboardNavItems;
 
   const handleDrawerOpen = () => setOpen(true);
   const handleDrawerClose = () => setOpen(false);
-  const handleLogout = () => navigate('/');
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/signin');
+  };
 
   return (
     <ThemeProvider theme={pendragonTheme}>
@@ -249,7 +265,7 @@ const DashLayout = () => {
           </DrawerHeader>
           <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)' }} />
           <List>
-            {dashboardNavItems.map(({ label, to, icon: Icon }) => (
+            {visibleNavItems.map(({ label, to, icon: Icon }) => (
               <ListItem key={to} disablePadding sx={{ display: 'block' }}>
                 <ListItemButton
                   component={Link}

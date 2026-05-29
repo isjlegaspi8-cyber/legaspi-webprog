@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react';
+﻿import { useMemo, useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
@@ -15,14 +15,17 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 import { DataGrid } from '@mui/x-data-grid';
+import { fetchUsers, createUser, updateUser, deleteUser } from '../../services/UserService';
 
 const initialUserRows = [
-  { id: 1, firstName: 'Alicia', lastName: 'Reyes', username: 'alicia.reyes', email: 'alicia.reyes@example.com', role: 'Admin', gender: 'Female', status: 'Active', lastLogin: 'Today' },
-  { id: 2, firstName: 'Marco', lastName: 'Santos', username: 'marco.santos', email: 'marco.santos@example.com', role: 'Viewer', gender: 'Male', status: 'Active', lastLogin: 'Yesterday' },
-  { id: 3, firstName: 'Bianca', lastName: 'Cruz', username: 'bianca.cruz', email: 'bianca.cruz@example.com', role: 'Editor', gender: 'Female', status: 'Inactive', lastLogin: '2d ago' },
-  { id: 4, firstName: 'Nathan', lastName: 'Diaz', username: 'nathan.diaz', email: 'nathan.diaz@example.com', role: 'Viewer', gender: 'Male', status: 'Active', lastLogin: 'Today' },
-  { id: 5, firstName: 'Jasmine', lastName: 'Garcia', username: 'jasmine.garcia', email: 'jasmine.garcia@example.com', role: 'Editor', gender: 'Female', status: 'Inactive', lastLogin: '3d ago' },
+  { _id: 1, firstName: 'Alicia', lastName: 'Reyes', username: 'alicia.reyes', email: 'alicia.reyes@example.com', role: 'Admin', gender: 'Female', type: 'Active', lastLogin: 'Today' },
+  { _id: 2, firstName: 'Marco', lastName: 'Santos', username: 'marco.santos', email: 'marco.santos@example.com', role: 'Viewer', gender: 'Male', type: 'Active', lastLogin: 'Yesterday' },
+  { _id: 3, firstName: 'Bianca', lastName: 'Cruz', username: 'bianca.cruz', email: 'bianca.cruz@example.com', role: 'Editor', gender: 'Female', type: 'Inactive', lastLogin: '2d ago' },
+  { _id: 4, firstName: 'Nathan', lastName: 'Diaz', username: 'nathan.diaz', email: 'nathan.diaz@example.com', role: 'Viewer', gender: 'Male', type: 'Active', lastLogin: 'Today' },
+  { _id: 5, firstName: 'Jasmine', lastName: 'Garcia', username: 'jasmine.garcia', email: 'jasmine.garcia@example.com', role: 'Editor', gender: 'Female', type: 'Inactive', lastLogin: '3d ago' },
 ];
 
 const initialFormValues = {
@@ -34,7 +37,7 @@ const initialFormValues = {
   age: '',
   role: 'Viewer',
   gender: 'Female',
-  status: 'Active',
+  type: 'Active',
   password: '',
   confirmPassword: '',
 };
@@ -83,6 +86,8 @@ const validationRules = {
 
 const UsersPage = () => {
   const [rows, setRows] = useState(initialUserRows);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [genderFilter, setGenderFilter] = useState('All');
@@ -93,6 +98,39 @@ const UsersPage = () => {
   const [formErrors, setFormErrors] = useState({});
   const [formMessage, setFormMessage] = useState('');
 
+  // Load users from API
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await fetchUsers();
+      // Map API response to grid format if needed
+      const mappedUsers = Array.isArray(data) ? data.map((u) => ({
+        _id: u._id,
+        id: u._id,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        username: u.username,
+        email: u.email,
+        role: u.role || 'Viewer',
+        gender: u.gender || 'Other',
+        type: u.type || 'Active',
+        lastLogin: u.lastLogin || 'Unknown',
+      })) : initialUserRows;
+      setRows(mappedUsers);
+    } catch (err) {
+      console.error('Error loading users:', err);
+      setError('Failed to load users. Using sample data.');
+      setRows(initialUserRows);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleOpenDialog = () => {
     setEditingUserId(null);
     setDialogOpen(true);
@@ -100,7 +138,7 @@ const UsersPage = () => {
   };
 
   const handleEditUser = (row) => {
-    setEditingUserId(row?.id ?? null);
+    setEditingUserId(row?.id ?? row?._id ?? null);
     setFormValues({
       firstName: row.firstName || '',
       lastName: row.lastName || '',
@@ -110,7 +148,7 @@ const UsersPage = () => {
       age: row.age || '',
       role: row.role || 'Viewer',
       gender: row.gender || 'Female',
-      status: row.status || 'Active',
+      type: row.type || 'Active',
       password: '',
       confirmPassword: '',
     });
@@ -143,7 +181,7 @@ const UsersPage = () => {
     setFormMessage('');
   };
 
-  const handleSaveUser = () => {
+  const handleSaveUser = async () => {
     const nextErrors = Object.keys(initialFormValues).reduce((acc, field) => {
       const error = validationRules[field]?.(formValues[field], formValues, editingUserId != null) || '';
       if (error) acc[field] = error;
@@ -156,52 +194,55 @@ const UsersPage = () => {
       return;
     }
 
-    if (editingUserId != null) {
-      setRows((current) =>
-        current.map((row) =>
-          row.id === editingUserId
-            ? {
-                ...row,
-                firstName: formValues.firstName.trim(),
-                lastName: formValues.lastName.trim(),
-                username: formValues.username.trim(),
-                email: formValues.email.trim(),
-                role: formValues.role,
-                gender: formValues.gender,
-                status: formValues.status,
-              }
-            : row
-        )
-      );
-      setFormMessage('User updated successfully.');
-    } else {
-      const nextId = rows.length ? Math.max(...rows.map((row) => row.id)) + 1 : 1;
-      setRows((current) => [
-        ...current,
-        {
-          id: nextId,
-          firstName: formValues.firstName.trim(),
-          lastName: formValues.lastName.trim(),
-          username: formValues.username.trim(),
-          email: formValues.email.trim(),
-          role: formValues.role,
-          gender: formValues.gender,
-          status: formValues.status,
-          lastLogin: 'Just added',
-        },
-      ]);
-      setFormMessage('New user added successfully.');
-    }
+    try {
+      const payload = {
+        firstName: formValues.firstName.trim(),
+        lastName: formValues.lastName.trim(),
+        username: formValues.username.trim(),
+        email: formValues.email.trim(),
+        role: formValues.role,
+        gender: formValues.gender,
+        type: formValues.type,
+      };
 
-    handleCloseDialog();
+      if (editingUserId != null) {
+        await updateUser(editingUserId, payload);
+        setFormMessage('User updated successfully.');
+      } else {
+        payload.password = formValues.password;
+        await createUser(payload);
+        setFormMessage('New user added successfully.');
+      }
+
+      loadUsers();
+      handleCloseDialog();
+    } catch (err) {
+      console.error('Error saving user:', err);
+      setFormMessage('Error saving user: ' + (err.response?.data?.message || err.message));
+    }
   };
 
   const handleToggleStatus = (id) => {
     setRows((current) =>
       current.map((row) =>
-        row.id === id ? { ...row, status: row.status === 'Active' ? 'Inactive' : 'Active' } : row
+        row.id === id ? { ...row, type: row.type === 'Active' ? 'Inactive' : 'Active' } : row
       )
     );
+  };
+
+  const handleDeleteUser = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    try {
+      await deleteUser(id);
+      setFormMessage('User deleted successfully.');
+      loadUsers();
+      if (editingUserId === id) {
+        handleCloseDialog();
+      }
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      setFormMessage('Error deleting user: ' + (err.response?.data?.message || err.message));
+    }
   };
 
   const isEditMode = editingUserId != null;
@@ -225,7 +266,7 @@ const UsersPage = () => {
 
         const roleMatch = roleFilter === 'All' || row.role === roleFilter;
         const genderMatch = genderFilter === 'All' || row.gender === genderFilter;
-        const statusMatch = statusFilter === 'All' || row.status === statusFilter;
+        const statusMatch = statusFilter === 'All' || row.type === statusFilter;
 
         return roleMatch && genderMatch && statusMatch;
       }),
@@ -233,7 +274,7 @@ const UsersPage = () => {
   );
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 80 },
+    { field: 'id', headerName: 'ID', width: 80, valueGetter: (params) => params?.row?.id || params?.row?._id || '' },
     {
       field: 'fullName',
       headerName: 'Full Name',
@@ -271,10 +312,10 @@ const UsersPage = () => {
       headerName: 'Status',
       width: 130,
       renderCell: (params) => {
-        const active = params.value === 'Active';
+        const active = params?.row?.type === 'Active';
         return (
           <Chip
-            label={params.value}
+            label={params?.row?.type || 'Unknown'}
             sx={{
               background: `${active ? '#22c55e' : '#f59e0b'}20`,
               color: active ? '#22c55e' : '#f59e0b',
@@ -323,6 +364,13 @@ const UsersPage = () => {
           Review the current user roster, roles, and access status in a clean table designed for administration and monitoring.
         </Typography>
       </Box>
+
+      {error && <Alert severity="warning">{error}</Alert>}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
 
       <Card sx={{ background: '#08101f', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.75rem' }}>
         <CardContent>
@@ -397,7 +445,7 @@ const UsersPage = () => {
 
           <Box sx={{ height: 520, width: '100%', '& .MuiDataGrid-root': { border: 'none' } }}>
             <DataGrid
-              rows={filteredRows}
+              rows={filteredRows.map((row) => ({ ...row, id: row._id || row.id }))}
               columns={columns}
               initialState={{ pagination: { paginationModel: { pageSize: 7 } } }}
               pageSizeOptions={[7]}
@@ -523,7 +571,7 @@ const UsersPage = () => {
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth variant="filled" sx={{ background: '#f8fafc0d' }}>
                 <InputLabel sx={{ color: '#94a3b8' }}>Status</InputLabel>
-                <Select value={formValues.status} label="Status" onChange={handleFieldChange('status')} sx={{ color: '#f8fafc' }}>
+                <Select value={formValues.type} label="Status" onChange={handleFieldChange('type')} sx={{ color: '#f8fafc' }}>
                   {['Active', 'Inactive'].map((status) => (
                     <MenuItem key={status} value={status}>
                       {status}

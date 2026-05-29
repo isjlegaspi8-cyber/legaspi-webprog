@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
+import { createUser } from '../../services/UserService';
 
 const inputClasses =
   'mt-2 w-full rounded-3xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-yellow-500 focus:bg-zinc-800 focus:ring-2 focus:ring-yellow-500/40';
@@ -33,6 +34,8 @@ const validateField = (name, value, values) => {
       if (!/^\d+$/.test(value)) return 'Age must be a number only.';
       if (Number(value) <= 0) return 'Age must be greater than zero.';
       return '';
+    case 'gender':
+      return value ? '' : 'Gender is required.';
     case 'password':
       if (!value) return 'Password is required.';
       if (value.length < 8) return 'Password must be at least 8 characters.';
@@ -47,6 +50,7 @@ const validateField = (name, value, values) => {
 };
 
 const SignUpPage = () => {
+  const navigate = useNavigate();
   const [values, setValues] = useState({
     firstName: '',
     lastName: '',
@@ -54,6 +58,7 @@ const SignUpPage = () => {
     username: '',
     contact: '',
     age: '',
+    gender: 'Female',
     password: '',
     confirmPassword: '',
     agreed: false,
@@ -66,9 +71,12 @@ const SignUpPage = () => {
     username: '',
     contact: '',
     age: '',
+    gender: '',
     password: '',
     confirmPassword: '',
   });
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState('');
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -93,8 +101,10 @@ const SignUpPage = () => {
     }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmitError('');
+    setSubmitSuccess('');
 
     const nextErrors = Object.keys(errors).reduce((acc, key) => {
       acc[key] = validateField(key, values[key], values);
@@ -104,15 +114,40 @@ const SignUpPage = () => {
     setErrors(nextErrors);
 
     const hasError = Object.values(nextErrors).some((error) => error);
-    if (hasError || !values.agreed) return;
+    if (hasError || !values.agreed) {
+      if (!values.agreed) setSubmitError('Please agree to the terms to continue.');
+      return;
+    }
 
-    // Submit logic here
-    alert('Sign up successful');
+    try {
+      await createUser({
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        email: values.email.trim(),
+        username: values.username.trim(),
+        contactNumber: values.contact.trim(),
+        age: values.age.trim(),
+        gender: values.gender,
+        password: values.password,
+      });
+      setSubmitSuccess('Account created successfully. Please sign in.');
+      navigate('/signin');
+    } catch (err) {
+      console.error(err);
+      setSubmitError(err.response?.data?.message || 'Unable to create account.');
+    }
   };
 
   const isFormValid =
     Object.values(errors).every((error) => !error) &&
-    Object.values(values).every((value) => value !== '') &&
+    values.firstName.trim() &&
+    values.lastName.trim() &&
+    values.email.trim() &&
+    values.username.trim() &&
+    values.contact.trim() &&
+    values.age.trim() &&
+    values.password &&
+    values.confirmPassword &&
     values.agreed;
 
   return (
@@ -146,6 +181,7 @@ const SignUpPage = () => {
               className={inputClasses}
               value={values.firstName}
               onChange={handleChange}
+              required
             />
             {errors.firstName && <p className={fieldErrorClasses}>{errors.firstName}</p>}
           </div>
@@ -162,6 +198,7 @@ const SignUpPage = () => {
               className={inputClasses}
               value={values.lastName}
               onChange={handleChange}
+              required
             />
             {errors.lastName && <p className={fieldErrorClasses}>{errors.lastName}</p>}
           </div>
@@ -181,6 +218,7 @@ const SignUpPage = () => {
               className={inputClasses}
               value={values.email}
               onChange={handleChange}
+              required
             />
             {errors.email && <p className={fieldErrorClasses}>{errors.email}</p>}
           </div>
@@ -197,6 +235,7 @@ const SignUpPage = () => {
               className={inputClasses}
               value={values.username}
               onChange={handleChange}
+              required
             />
             {errors.username && <p className={fieldErrorClasses}>{errors.username}</p>}
           </div>
@@ -217,6 +256,7 @@ const SignUpPage = () => {
               className={inputClasses}
               value={values.contact}
               onChange={handleChange}
+              required
             />
             {errors.contact && <p className={fieldErrorClasses}>{errors.contact}</p>}
           </div>
@@ -233,9 +273,30 @@ const SignUpPage = () => {
               className={inputClasses}
               value={values.age}
               onChange={handleChange}
+              required
             />
             {errors.age && <p className={fieldErrorClasses}>{errors.age}</p>}
           </div>
+        </div>
+
+        <div>
+          <label htmlFor="signup-gender" className={labelClasses}>
+            Gender
+          </label>
+          <select
+            id="signup-gender"
+            name="gender"
+            className={`${inputClasses} appearance-none bg-zinc-900`}
+            value={values.gender}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select gender</option>
+            <option value="Female">Female</option>
+            <option value="Male">Male</option>
+            <option value="Other">Other</option>
+          </select>
+          {errors.gender && <p className={fieldErrorClasses}>{errors.gender}</p>}
         </div>
 
         <div>
@@ -251,6 +312,7 @@ const SignUpPage = () => {
             className={inputClasses}
             value={values.password}
             onChange={handleChange}
+            required
           />
           <p className="mt-2 text-xs leading-5 text-zinc-500">
             Password must be at least 8 characters.
@@ -271,6 +333,7 @@ const SignUpPage = () => {
             className={inputClasses}
             value={values.confirmPassword}
             onChange={handleChange}
+            required
           />
           {errors.confirmPassword && <p className={fieldErrorClasses}>{errors.confirmPassword}</p>}
         </div>
@@ -287,6 +350,9 @@ const SignUpPage = () => {
             I agree to Team Pendragon&apos;s <span className="text-yellow-500 font-black">Terms of Service</span> and <span className="text-yellow-500 font-black">Privacy Policy</span>
           </span>
         </label>
+
+        {submitError && <p className="text-sm text-red-400">{submitError}</p>}
+        {submitSuccess && <p className="text-sm text-emerald-400">{submitSuccess}</p>}
 
         <Button
           type="submit"

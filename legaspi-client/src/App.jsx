@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import './App.css';
 import Layout from './layouts/Layout';
 import AuthLayout from './layouts/AuthLayout';
@@ -13,6 +13,26 @@ import SignInPage from './pages/AuthPages/SignInPage';
 import DashboardPage from './pages/DashboardPages/DashboardPage';
 import ReportsPage from './pages/DashboardPages/ReportsPage';
 import UsersPage from './pages/DashboardPages/UsersPage';
+import DashArticleListPage from './pages/DashboardPages/DashArticleListPage';
+
+const getCurrentUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+  } catch {
+    return null;
+  }
+};
+
+const RequireAuth = ({ children }) => {
+  const user = getCurrentUser();
+  return user ? children : <Navigate to="/signin" replace />;
+};
+
+const RequireAdmin = ({ children }) => {
+  const user = getCurrentUser();
+  if (!user) return <Navigate to="/signin" replace />;
+  return user.role === 'Admin' ? children : <Navigate to="/" replace />;
+};
 
 const routes = [
   {
@@ -38,10 +58,15 @@ const routes = [
   },
   {
     path: 'dashboard',
-    element: <DashLayout />,
+    element: (
+      <RequireAdmin>
+        <DashLayout />
+      </RequireAdmin>
+    ),
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'reports', element: <ReportsPage /> },
+      { path: 'articles', element: <DashArticleListPage /> },
       { path: 'users', element: <UsersPage /> },
     ],
   },
