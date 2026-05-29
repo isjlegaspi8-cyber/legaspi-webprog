@@ -18,11 +18,11 @@ import MenuItem from '@mui/material/MenuItem';
 import { DataGrid } from '@mui/x-data-grid';
 
 const initialUserRows = [
-  { id: 1, firstName: 'Alicia', lastName: 'Reyes', username: 'alicia.reyes', email: 'alicia.reyes@example.com', role: 'Admin', status: 'Active', lastLogin: 'Today' },
-  { id: 2, firstName: 'Marco', lastName: 'Santos', username: 'marco.santos', email: 'marco.santos@example.com', role: 'Viewer', status: 'Active', lastLogin: 'Yesterday' },
-  { id: 3, firstName: 'Bianca', lastName: 'Cruz', username: 'bianca.cruz', email: 'bianca.cruz@example.com', role: 'Editor', status: 'Inactive', lastLogin: '2d ago' },
-  { id: 4, firstName: 'Nathan', lastName: 'Diaz', username: 'nathan.diaz', email: 'nathan.diaz@example.com', role: 'Viewer', status: 'Active', lastLogin: 'Today' },
-  { id: 5, firstName: 'Jasmine', lastName: 'Garcia', username: 'jasmine.garcia', email: 'jasmine.garcia@example.com', role: 'Editor', status: 'Inactive', lastLogin: '3d ago' },
+  { id: 1, firstName: 'Alicia', lastName: 'Reyes', username: 'alicia.reyes', email: 'alicia.reyes@example.com', role: 'Admin', gender: 'Female', status: 'Active', lastLogin: 'Today' },
+  { id: 2, firstName: 'Marco', lastName: 'Santos', username: 'marco.santos', email: 'marco.santos@example.com', role: 'Viewer', gender: 'Male', status: 'Active', lastLogin: 'Yesterday' },
+  { id: 3, firstName: 'Bianca', lastName: 'Cruz', username: 'bianca.cruz', email: 'bianca.cruz@example.com', role: 'Editor', gender: 'Female', status: 'Inactive', lastLogin: '2d ago' },
+  { id: 4, firstName: 'Nathan', lastName: 'Diaz', username: 'nathan.diaz', email: 'nathan.diaz@example.com', role: 'Viewer', gender: 'Male', status: 'Active', lastLogin: 'Today' },
+  { id: 5, firstName: 'Jasmine', lastName: 'Garcia', username: 'jasmine.garcia', email: 'jasmine.garcia@example.com', role: 'Editor', gender: 'Female', status: 'Inactive', lastLogin: '3d ago' },
 ];
 
 const initialFormValues = {
@@ -33,10 +33,15 @@ const initialFormValues = {
   contactNumber: '',
   age: '',
   role: 'Viewer',
+  gender: 'Female',
   status: 'Active',
   password: '',
   confirmPassword: '',
 };
+
+const roleFilterOptions = ['All', 'Admin', 'Editor', 'Viewer', 'Support', 'Intern'];
+const genderFilterOptions = ['All', 'Male', 'Female', 'Other'];
+const statusFilterOptions = ['All', 'Active', 'Inactive'];
 
 const validationRules = {
   firstName: (value) => (!value.trim() ? 'First name is required.' : ''),
@@ -62,14 +67,16 @@ const validationRules = {
     if (Number(value) <= 0) return 'Age must be greater than zero.';
     return '';
   },
-  password: (value) => {
+  password: (value, values, isEditing) => {
+    if (isEditing && !value) return '';
     if (!value) return 'Password is required.';
     if (value.length < 8) return 'Password must be at least 8 characters.';
     return '';
   },
-  confirmPassword: (value, values) => {
+  confirmPassword: (value, values, isEditing) => {
+    if (isEditing && !values.password && !value) return '';
     if (!value) return 'Confirm password is required.';
-    if (value !== values.password) return 'Passwords do not match.';
+    if (values.password && value !== values.password) return 'Passwords do not match.';
     return '';
   },
 };
@@ -77,18 +84,44 @@ const validationRules = {
 const UsersPage = () => {
   const [rows, setRows] = useState(initialUserRows);
   const [searchValue, setSearchValue] = useState('');
+  const [roleFilter, setRoleFilter] = useState('All');
+  const [genderFilter, setGenderFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
   const [formValues, setFormValues] = useState(initialFormValues);
   const [formErrors, setFormErrors] = useState({});
   const [formMessage, setFormMessage] = useState('');
 
   const handleOpenDialog = () => {
+    setEditingUserId(null);
     setDialogOpen(true);
     setFormMessage('');
   };
 
+  const handleEditUser = (row) => {
+    setEditingUserId(row?.id ?? null);
+    setFormValues({
+      firstName: row.firstName || '',
+      lastName: row.lastName || '',
+      username: row.username || '',
+      email: row.email || '',
+      contactNumber: row.contactNumber || '',
+      age: row.age || '',
+      role: row.role || 'Viewer',
+      gender: row.gender || 'Female',
+      status: row.status || 'Active',
+      password: '',
+      confirmPassword: '',
+    });
+    setFormErrors({});
+    setFormMessage('');
+    setDialogOpen(true);
+  };
+
   const handleCloseDialog = () => {
     setDialogOpen(false);
+    setEditingUserId(null);
     setFormValues(initialFormValues);
     setFormErrors({});
     setFormMessage('');
@@ -100,9 +133,9 @@ const UsersPage = () => {
       const nextValues = { ...prev, [field]: nextValue };
       setFormErrors((current) => ({
         ...current,
-        [field]: validationRules[field]?.(nextValue, nextValues) || '',
+        [field]: validationRules[field]?.(nextValue, nextValues, editingUserId != null) || '',
         ...(field === 'password'
-          ? { confirmPassword: validationRules.confirmPassword(nextValues.confirmPassword, nextValues) }
+          ? { confirmPassword: validationRules.confirmPassword(nextValues.confirmPassword, nextValues, editingUserId != null) }
           : {}),
       }));
       return nextValues;
@@ -110,9 +143,9 @@ const UsersPage = () => {
     setFormMessage('');
   };
 
-  const handleAddUser = () => {
+  const handleSaveUser = () => {
     const nextErrors = Object.keys(initialFormValues).reduce((acc, field) => {
-      const error = validationRules[field]?.(formValues[field], formValues) || '';
+      const error = validationRules[field]?.(formValues[field], formValues, editingUserId != null) || '';
       if (error) acc[field] = error;
       return acc;
     }, {});
@@ -123,24 +156,44 @@ const UsersPage = () => {
       return;
     }
 
-    const nextId = rows.length ? Math.max(...rows.map((row) => row.id)) + 1 : 1;
-    setRows((current) => [
-      ...current,
-      {
-        id: nextId,
-        firstName: formValues.firstName.trim(),
-        lastName: formValues.lastName.trim(),
-        username: formValues.username.trim(),
-        email: formValues.email.trim(),
-        role: formValues.role,
-        status: formValues.status,
-        lastLogin: 'Just added',
-      },
-    ]);
-    setFormValues(initialFormValues);
-    setFormErrors({});
-    setFormMessage('New user added successfully.');
-    setDialogOpen(false);
+    if (editingUserId != null) {
+      setRows((current) =>
+        current.map((row) =>
+          row.id === editingUserId
+            ? {
+                ...row,
+                firstName: formValues.firstName.trim(),
+                lastName: formValues.lastName.trim(),
+                username: formValues.username.trim(),
+                email: formValues.email.trim(),
+                role: formValues.role,
+                gender: formValues.gender,
+                status: formValues.status,
+              }
+            : row
+        )
+      );
+      setFormMessage('User updated successfully.');
+    } else {
+      const nextId = rows.length ? Math.max(...rows.map((row) => row.id)) + 1 : 1;
+      setRows((current) => [
+        ...current,
+        {
+          id: nextId,
+          firstName: formValues.firstName.trim(),
+          lastName: formValues.lastName.trim(),
+          username: formValues.username.trim(),
+          email: formValues.email.trim(),
+          role: formValues.role,
+          gender: formValues.gender,
+          status: formValues.status,
+          lastLogin: 'Just added',
+        },
+      ]);
+      setFormMessage('New user added successfully.');
+    }
+
+    handleCloseDialog();
   };
 
   const handleToggleStatus = (id) => {
@@ -151,19 +204,32 @@ const UsersPage = () => {
     );
   };
 
+  const isEditMode = editingUserId != null;
+
   const filteredRows = useMemo(
     () =>
       rows.filter((row) => {
         const query = searchValue.trim().toLowerCase();
-        if (!query) return true;
-        const fullName = `${row.firstName} ${row.lastName}`.toLowerCase();
-        return (
-          fullName.includes(query) ||
-          row.username.toLowerCase().includes(query) ||
-          row.email.toLowerCase().includes(query)
-        );
+        if (query) {
+          const fullName = `${row.firstName} ${row.lastName}`.toLowerCase();
+          if (
+            !(
+              fullName.includes(query) ||
+              row.username.toLowerCase().includes(query) ||
+              row.email.toLowerCase().includes(query)
+            )
+          ) {
+            return false;
+          }
+        }
+
+        const roleMatch = roleFilter === 'All' || row.role === roleFilter;
+        const genderMatch = genderFilter === 'All' || row.gender === genderFilter;
+        const statusMatch = statusFilter === 'All' || row.status === statusFilter;
+
+        return roleMatch && genderMatch && statusMatch;
       }),
-    [rows, searchValue]
+    [rows, searchValue, roleFilter, genderFilter, statusFilter]
   );
 
   const columns = [
@@ -179,6 +245,27 @@ const UsersPage = () => {
     },
     { field: 'username', headerName: 'Username', width: 180 },
     { field: 'role', headerName: 'Role', width: 140 },
+    {
+      field: 'gender',
+      headerName: 'Gender',
+      width: 140,
+      renderCell: (params) => {
+        const gender = params?.row?.gender || '';
+        const bg = gender === 'Male' ? '#0ea5e9' : gender === 'Female' ? '#ec4899' : '#94a3b8';
+        return (
+          <Chip
+            label={gender}
+            sx={{
+              background: `${bg}20`,
+              color: bg,
+              fontWeight: 700,
+              borderRadius: '999px',
+              px: 1.5,
+            }}
+          />
+        );
+      },
+    },
     {
       field: 'status',
       headerName: 'Status',
@@ -213,17 +300,9 @@ const UsersPage = () => {
               size="small"
               variant="outlined"
               sx={{ color: '#f8fafc', borderColor: '#94a3b8' }}
-              onClick={() => alert(`Edit ${row.username || ''}`)}
+              onClick={() => handleEditUser(row)}
             >
               Edit
-            </Button>
-            <Button
-              size="small"
-              variant="contained"
-              color={row.status === 'Active' ? 'error' : 'success'}
-              onClick={() => row.id != null && handleToggleStatus(row.id)}
-            >
-              {row.status === 'Active' ? 'Disable' : 'Activate'}
             </Button>
           </Box>
         );
@@ -266,6 +345,51 @@ const UsersPage = () => {
               InputLabelProps={{ sx: { color: '#94a3b8' } }}
               InputProps={{ sx: { background: '#0f172a', color: '#f8fafc' } }}
             />
+            <FormControl sx={{ minWidth: 140 }} variant="filled">
+              <InputLabel sx={{ color: '#94a3b8' }}>Role</InputLabel>
+              <Select
+                value={roleFilter}
+                label="Role"
+                onChange={(event) => setRoleFilter(event.target.value)}
+                sx={{ background: '#0f172a', color: '#f8fafc' }}
+              >
+                {roleFilterOptions.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl sx={{ minWidth: 140 }} variant="filled">
+              <InputLabel sx={{ color: '#94a3b8' }}>Gender</InputLabel>
+              <Select
+                value={genderFilter}
+                label="Gender"
+                onChange={(event) => setGenderFilter(event.target.value)}
+                sx={{ background: '#0f172a', color: '#f8fafc' }}
+              >
+                {genderFilterOptions.map((gender) => (
+                  <MenuItem key={gender} value={gender}>
+                    {gender}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl sx={{ minWidth: 140 }} variant="filled">
+              <InputLabel sx={{ color: '#94a3b8' }}>Status</InputLabel>
+              <Select
+                value={statusFilter}
+                label="Status"
+                onChange={(event) => setStatusFilter(event.target.value)}
+                sx={{ background: '#0f172a', color: '#f8fafc' }}
+              >
+                {statusFilterOptions.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Button variant="contained" onClick={handleOpenDialog} sx={{ minWidth: 140, px: 4, py: 1.5 }}>
               Add User
             </Button>
@@ -291,7 +415,7 @@ const UsersPage = () => {
       </Card>
 
       <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="md">
-        <DialogTitle>Add User</DialogTitle>
+        <DialogTitle>{isEditMode ? 'Edit User' : 'Add User'}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0.5 }}>
             <Grid item xs={12} sm={6}>
@@ -374,6 +498,18 @@ const UsersPage = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth variant="filled" sx={{ background: '#f8fafc0d' }}>
+                <InputLabel sx={{ color: '#94a3b8' }}>Gender</InputLabel>
+                <Select value={formValues.gender} label="Gender" onChange={handleFieldChange('gender')} sx={{ color: '#f8fafc' }}>
+                  {['Female', 'Male', 'Other'].map((gender) => (
+                    <MenuItem key={gender} value={gender}>
+                      {gender}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth variant="filled" sx={{ background: '#f8fafc0d' }}>
                 <InputLabel sx={{ color: '#94a3b8' }}>Role</InputLabel>
                 <Select value={formValues.role} label="Role" onChange={handleFieldChange('role')} sx={{ color: '#f8fafc' }}>
                   {['Admin', 'Editor', 'Viewer', 'Support', 'Intern'].map((role) => (
@@ -433,8 +569,8 @@ const UsersPage = () => {
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button variant="contained" onClick={handleAddUser}>
-            Save User
+          <Button variant="contained" onClick={handleSaveUser}>
+            {isEditMode ? 'Save Changes' : 'Save User'}
           </Button>
         </DialogActions>
       </Dialog>
