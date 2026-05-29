@@ -24,7 +24,7 @@ const SignInPage = () => {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      // Admins and Editors go to dashboard; viewers are blocked by server
+      // Admins and Editors go to dashboard; viewers return to the public site
       if (userRole === 'Admin' || userRole === 'Editor') {
         navigate('/dashboard');
       } else {
