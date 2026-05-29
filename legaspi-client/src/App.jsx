@@ -25,13 +25,16 @@ const getCurrentUser = () => {
 
 const RequireAuth = ({ children }) => {
   const user = getCurrentUser();
-  return user ? children : <Navigate to="/signin" replace />;
+  if (!user) return <Navigate to="/signin" replace />;
+  // Block viewers from accessing protected routes (should not be able to sign in)
+  if (user.role === 'Viewer') return <Navigate to="/signin" replace />;
+  return children;
 };
 
 const RequireAdmin = ({ children }) => {
   const user = getCurrentUser();
   if (!user) return <Navigate to="/signin" replace />;
-  return user.role === 'Admin' ? children : <Navigate to="/" replace />;
+  return user.role === 'Admin' ? children : <Navigate to="/dashboard" replace />;
 };
 
 const routes = [
@@ -59,15 +62,19 @@ const routes = [
   {
     path: 'dashboard',
     element: (
-      <RequireAdmin>
+      <RequireAuth>
         <DashLayout />
-      </RequireAdmin>
+      </RequireAuth>
     ),
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'articles', element: <DashArticleListPage /> },
-      { path: 'users', element: <UsersPage /> },
+      { path: 'users', element: (
+          <RequireAdmin>
+            <UsersPage />
+          </RequireAdmin>
+        ) },
     ],
   },
   { path: '*', element: <NotFoundPage /> },

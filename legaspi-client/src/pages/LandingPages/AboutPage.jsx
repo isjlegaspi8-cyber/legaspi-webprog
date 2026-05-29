@@ -61,19 +61,19 @@ const AboutPage = () => {
             </div>
         </div>
         
-        <div className="grid grid-cols-3 gap-8 px-4 md:px-6 lg:px-12 max-w-screen-2xl mx-auto w-full items-stretch">
+        <div className="grid grid-cols-3 gap-8 px-4 md:px-6 lg:px-12 max-w-screen-2xl mx-auto w-full">
           {[
             { name: "Shiguru Nanairo", role: "Technical Genius", gear: "Weiss Tiger", img: ShiguruImg, bio: "Calculates the path of absolute play. Maintains 0.1% recruitment friction standards." },
             { name: "Chrome Ryugu", role: "The King // Reigning Champ", gear: "Cobalt Drake", img: ChromeImg, bio: "Absolute summit dominance. Velocity limits are purely theoretical." },
             { name: "Jaxon Cross", role: "The Legend // Apex Prototype", gear: "Dran Sword", img: JaxonImg, bio: "The foundation of the 100th Floor. His X-Dash analysis set the pro-league standard." }
           ].map((member, i) => (
-            <article key={i} className="relative bg-black border border-black rounded-[2rem] overflow-hidden shadow-[12px_12px_0_0_#000] flex flex-col h-full">
-              <div className="relative z-10 flex flex-col flex-1">
+            <article key={i} className="relative bg-black border border-black rounded-[2rem] overflow-hidden shadow-[12px_12px_0_0_#000]">
+              <div className="relative z-10 flex flex-col h-full">
                 <div className="h-72 md:h-80 bg-black overflow-hidden flex items-center justify-center">
                   <img src={member.img} alt={member.name} className="h-full w-full object-cover" />
                 </div>
 
-                <div className="p-8 flex flex-col gap-5 bg-yellow-500 flex-1">
+                <div className="p-8 flex flex-col gap-5 bg-yellow-500">
                   <div>
                     <span className="text-yellow-700 font-black text-[10px] uppercase tracking-[0.3em] italic">{member.role}</span>
                     <h3 className="text-4xl md:text-5xl font-black italic uppercase text-white tracking-tight mt-3 leading-tight">{member.name}</h3>
