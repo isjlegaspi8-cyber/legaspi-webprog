@@ -38,20 +38,24 @@ const DashArticleListPage = () => {
   );
   const [editorValues, setEditorValues] = useState(initialArticleValues);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [editedSlug, setEditedSlug] = useState(null);
 
   const handleEditorClose = () => {
     setEditorOpen(false);
     setEditorValues(initialArticleValues);
+    setEditedSlug(null);
   };
 
   const handleAddArticle = () => {
     setEditorValues(initialArticleValues);
+    setEditedSlug(null);
     setEditorOpen(true);
   };
 
   const handleEdit = (slug) => {
     const article = rows.find((row) => row.slug === slug);
     if (!article) return;
+    setEditedSlug(article.slug);
     setEditorValues({
       id: article.id,
       slug: article.slug,
@@ -87,9 +91,10 @@ const DashArticleListPage = () => {
       .split(/\n{2,}|\r\n{2,}/)
       .filter((paragraph) => paragraph.trim().length > 0);
     const preview = paragraphs[0] || '';
+    const name = editorValues.slug.trim().replace(/\s+/g, '-').toLowerCase();
     const nextRow = {
       id: editorValues.id || rows.length + 1,
-      slug: editorValues.slug.trim().replace(/\s+/g, '-').toLowerCase(),
+      slug: name,
       title: editorValues.title.trim(),
       imageUrl: editorValues.imageUrl.trim(),
       paragraphs: paragraphs.length,
@@ -104,6 +109,22 @@ const DashArticleListPage = () => {
       }
       return [...current, nextRow];
     });
+
+    const sharedArticle = {
+      name,
+      title: editorValues.title.trim(),
+      imageUrl: editorValues.imageUrl.trim(),
+      content: paragraphs,
+    };
+
+    if (editedSlug) {
+      const index = articles.findIndex((article) => article.name === editedSlug);
+      if (index !== -1) {
+        articles[index] = sharedArticle;
+      }
+    } else {
+      articles.push(sharedArticle);
+    }
 
     handleEditorClose();
   };
