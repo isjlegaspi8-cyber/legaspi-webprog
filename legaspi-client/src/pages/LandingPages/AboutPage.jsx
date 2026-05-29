@@ -50,41 +50,40 @@ const AboutPage = () => {
       </section>
 
       {/* SECTION 2: VERIFIED ROSTER DATABASE */}
-      <section className="w-full flex flex-col gap-12">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
-            <h2 className="text-white border-none p-0 text-5xl md:text-6xl font-black italic uppercase tracking-tighter m-0">
+      <section className="w-full flex flex-col gap-10">
+        <div className="flex flex-col items-center gap-4 px-4">
+            <h2 className="text-white border-none p-0 text-5xl md:text-6xl font-black italic uppercase tracking-tighter m-0 text-center">
                Apex Lineup // <span className="text-yellow-500">The Elite Guard</span>
             </h2>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center gap-2">
               <span className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Active Link</span>
               <div className="h-2 w-24 bg-yellow-500 skew-x-[-20deg]"></div>
             </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-3 gap-8 px-4 md:px-6 lg:px-12 max-w-screen-2xl mx-auto w-full items-stretch">
           {[
             { name: "Shiguru Nanairo", role: "Technical Genius", gear: "Weiss Tiger", img: ShiguruImg, bio: "Calculates the path of absolute play. Maintains 0.1% recruitment friction standards." },
             { name: "Chrome Ryugu", role: "The King // Reigning Champ", gear: "Cobalt Drake", img: ChromeImg, bio: "Absolute summit dominance. Velocity limits are purely theoretical." },
             { name: "Jaxon Cross", role: "The Legend // Apex Prototype", gear: "Dran Sword", img: JaxonImg, bio: "The foundation of the 100th Floor. His X-Dash analysis set the pro-league standard." }
           ].map((member, i) => (
-            <article key={i} className="group relative bg-zinc-900 border-4 border-zinc-800 hover:border-yellow-500 rounded-[2.5rem] overflow-hidden transition-all duration-300 shadow-[10px_10px_0_0_#000]">
-              <div className="p-8 pb-6 border-b border-zinc-800">
-                <span className="text-yellow-500 font-black text-[10px] uppercase tracking-[0.3em] italic">{member.role}</span>
-                <h3 className="text-4xl font-black italic uppercase text-white tracking-tighter mt-1">{member.name}</h3>
-              </div>
-              
-              <div className="relative aspect-[3/4] bg-zinc-950 flex items-center justify-center p-6 border-b-8 border-yellow-500 overflow-hidden">
-                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent opacity-90 z-10"></div>
-                 <img src={member.img} alt={member.name} className="relative z-20 w-full h-full object-contain filter group-hover:scale-110 transition-transform duration-500" />
-                 <span className="absolute bottom-6 left-8 z-0 font-black italic text-8xl text-white/5 uppercase tracking-tighter rotate-[-15deg]">PEND</span>
-              </div>
-              
-              <div className="p-8">
-                <p className="text-zinc-400 font-bold italic leading-relaxed text-sm mb-6 border-l-4 border-zinc-800 pl-4">{member.bio}</p>
-                <div className="flex items-center gap-4 bg-black/40 p-4 border border-zinc-800">
-                   <span className="text-zinc-500 font-bold text-[10px] uppercase tracking-wider">PRIMARY GEAR</span>
-                   <div className="h-0.5 flex-grow bg-zinc-800"></div>
-                   <span className="text-white font-black italic text-sm text-right uppercase">{member.gear}</span>
+            <article key={i} className="relative bg-black border border-black rounded-[2rem] overflow-hidden shadow-[12px_12px_0_0_#000] flex flex-col h-full">
+              <div className="relative z-10 flex flex-col flex-1">
+                <div className="h-72 md:h-80 bg-black overflow-hidden flex items-center justify-center">
+                  <img src={member.img} alt={member.name} className="h-full w-full object-cover" />
+                </div>
+
+                <div className="p-8 flex flex-col gap-5 bg-yellow-500 flex-1">
+                  <div>
+                    <span className="text-yellow-700 font-black text-[10px] uppercase tracking-[0.3em] italic">{member.role}</span>
+                    <h3 className="text-4xl md:text-5xl font-black italic uppercase text-white tracking-tight mt-3 leading-tight">{member.name}</h3>
+                  </div>
+                  <p className="text-yellow-800 italic leading-relaxed text-sm border-l-4 border-yellow-800 pl-4">{member.bio}</p>
+                  <div className="mt-auto flex items-center gap-4 bg-yellow-700 p-4">
+                     <span className="text-yellow-900 font-bold text-[11px] uppercase tracking-wider">PRIMARY GEAR</span>
+                     <div className="h-0.5 flex-grow bg-yellow-800"></div>
+                     <span className="text-white font-black italic text-sm uppercase">{member.gear}</span>
+                  </div>
                 </div>
               </div>
             </article>
