@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* TEAM PENDRAGON CORE COLORS */
+  --text: #4b5563;         
+  --text-h: #09090b;       
+  --bg: #ffffff;           
+  --border: #09090b;       
+  --code-bg: #fdfaf2;      
+  
+  --accent: #d4af37;       /* Royal Gold */
+  --accent-glow: rgba(212, 175, 55, 0.4);
+  --accent-muted: rgba(212, 175, 55, 0.1);
+  
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --heading: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* RESPONSIVE FIXES */
+@media (max-width: 1024px) {
+  :root { font-size: 16px; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #cbd5e1;       
+    --text-h: #ffffff;     
+    --bg: #020617;         
+    --border: #1e293b;     
+    --code-bg: #1e293b;
+    --accent: #fbbf24;     
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  /* NEW: Layered Background - Grid + Radial Peak Glow */
+  background-image: 
+    radial-gradient(circle at 50% 0%, var(--accent-muted) 0%, transparent 70%),
+    linear-gradient(var(--accent-glow) 1px, transparent 1px),
+    linear-gradient(90deg, var(--accent-glow) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* X-Dash Animation for Speed Lines */
+@keyframes xDash {
+  0% { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: translateX(200%) skewX(-15deg); opacity: 0; }
+}
+
+.speed-line {
+  position: absolute;
+  height: 2px;
+  background: var(--accent);
+  width: 200px;
+  pointer-events: none;
+  animation: xDash 3s infinite linear;
+}
+
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: left; 
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* CHAMPION TYPOGRAPHY */
+h1, h2 {
+  font-family: var(--heading);
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: 56px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -3px;
+  margin: 32px 0;
+  /* UPDATED: High-Contrast Chrome Polish */
+  background: linear-gradient(
+    to bottom, 
+    #ffffff 0%, 
+    #ffffff 35%, 
+    var(--accent) 48%, 
+    #826a1e 52%, 
+    var(--accent) 65%, 
+    #ffffff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(6px 6px 0px #000);
+}
+
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -0.05em;
+  margin: 0 0 8px;
+  border-left: 12px solid var(--accent);
+  padding-left: 20px;
+  color: var(--text-h);
+}
+
+/* NEW: Brutalist Card Container (Pendragon Style) */
+.apex-card {
+  position: relative;
+  background: var(--bg);
+  border: 4px solid var(--border);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  /* Scissored corner aesthetic */
+  clip-path: polygon(0 0, 100% 0, 100% 90%, 95% 100%, 0 100%);
+}
+
+.apex-card:hover {
+  transform: translateY(-10px) rotateX(4deg);
+  box-shadow: 12px 12px 0px 0px var(--accent);
+  border-color: var(--accent);
+}
+
+@media (max-width: 1024px) {
+  h1 { font-size: 42px; margin: 24px 0; letter-spacing: -1.5px; }
+  h2 { font-size: 20px; }
+}
+
+p { margin: 0; }
+
+code, .counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+  border: 1px solid var(--accent-muted);
+}
