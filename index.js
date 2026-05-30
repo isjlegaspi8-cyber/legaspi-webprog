@@ -1,3 +1,4 @@
+// api/index.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -7,7 +8,7 @@ const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
-// Connect Database
+// Connect to Database (MongoDB Atlas, not localhost)
 connectDB();
 
 // Middleware
@@ -25,5 +26,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Server Error' });
 });
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// **DO NOT use app.listen()**
+module.exports = app;
+
+// Specify Node runtime for Vercel
+module.exports.config = { runtime: 'nodejs18.x' };
