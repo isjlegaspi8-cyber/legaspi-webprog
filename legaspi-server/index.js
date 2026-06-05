@@ -1,10 +1,10 @@
-require('dotenv').config();
-const express = require('express');
-const fs = require('fs');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const connectDB = require('./config/db');
-const userRoutes = require('./routes/userRoutes');
+require("dotenv").config();
+const express = require("express");
+const fs = require("fs");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const connectDB = require("./config/db");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -17,19 +17,38 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+// Root Route
+app.get("/", (req, res) => {
+  res.send("Cannot GET /");
+});
+
 // Routes
-app.use('/api/users', userRoutes);
+app.use("/api/users", userRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
+
   try {
-    fs.appendFileSync('server-error.log', `${new Date().toISOString()} ${err.stack}\n\n`);
+    fs.appendFileSync(
+      "server-error.log",
+      `${new Date().toISOString()} ${err.stack}\n\n`
+    );
   } catch (fileErr) {
-    console.error('Failed to write error log:', fileErr);
+    console.error("Failed to write error log:", fileErr);
   }
-  res.status(500).json({ message: 'Server Error' });
+
+  res.status(500).json({ message: "Server Error" });
 });
 
+// For local development
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () =>
+    console.log(`Server running on port ${PORT}`)
+  );
+}
+
+// Export app for Vercel
+module.exports = app;
